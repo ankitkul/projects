@@ -107,22 +107,26 @@
       </div>
     </nav>
 
-    <h2 style="text-align:center;">Is there Global warming?</h2>
-    <h4 style="text-align:center;color:#AAA;">Global and Hemispheric Temperature Anomalies<sup>*</sup> (1900-2014)</h4>  
+    <h2 class="text-center">Is there Global warming?</h2>
+    <h4 class="text-center lead">Global and Hemispheric Temperature Anomalies<sup>*</sup> (1900-2014)</h4> 
+      
     <div class="container">
-        <div class="chart">
+        <!-- Chart Area -->
+        <div id="chart" class="chart">
         </div>
         
         <br/>
-        
-        <h5>Legend:</h5>
-        <span class="label color1">Global</span>
-        <span class="label color2">Northern Hemisphere</span>
-        <span class="label color3">Southern Hemisphere</span>
-
-        <h6><sup>*</sup>Temperature Anomalies: Temperature deviations from the corresponding 1951-1980 means </h6>
-        <h6>Source data: <a href="http://data.giss.nasa.gov/gistemp/">NASA</a></h6>
-
+        <div class="text-right">
+            <h5>Legend:</h5>
+            <span class="label color1">Global</span>
+            <span class="label color2">Northern Hemisphere</span>
+            <span class="label color3">Southern Hemisphere</span>
+        </div>
+        <br/>    
+        <div class="well well-sm">
+            <h6><sup>*</sup><em>Temperature Anomalies: Temperature deviations from the corresponding 1951-1980 means</em></h6>
+            <h6>Source data: <a href="http://data.giss.nasa.gov/gistemp/">NASA</a></h6>
+        </div>
     </div> <!-- /container -->
     
     <!-- D3 -->
@@ -150,8 +154,8 @@
 
     var format = d3.time.format("%Y-%m-%d");
 
-    var margin = {top: 20, right: 20, bottom: 30, left: 20};
-    var width = document.body.clientWidth - margin.left - margin.right - 100;
+    var margin = {top: 0, right: 1, bottom: 20, left: 15};
+    var width = document.getElementById('chart').clientWidth - margin.left - margin.right;
     var height = 400 - margin.top - margin.bottom;
 
     var tooltip = d3.select("body")
@@ -292,11 +296,11 @@
       d3.select(".chart")
           .on("mousemove", function(){
              mousex = d3.mouse(this);
-             mousex = mousex[0] + 40;
+             mousex = mousex[0] + document.getElementById('chart').getBoundingClientRect().left - 1;
              vertical.style("left", mousex + "px" )})
           .on("mouseover", function(){
              mousex = d3.mouse(this);
-             mousex = mousex[0] + 40;
+             mousex = mousex[0] + document.getElementById('chart').getBoundingClientRect().left - 1;
              vertical.style("left", mousex + "px")});
 
     });
