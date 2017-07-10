@@ -6,6 +6,7 @@ from gensim import matutils
 from sklearn.feature_extraction.text import TfidfVectorizer
 from time import time
 from nltk.tokenize import sent_tokenize
+import json
 
 def main(K, numfeatures, sample_file, num_display_words, outputfile):
     K_clusters = K
@@ -36,14 +37,23 @@ def main(K, numfeatures, sample_file, num_display_words, outputfile):
     print("done in %fs" % (time() - t0))
         
     output_text = []
+    output_dict = {}
     for i, item in enumerate(lda.show_topics(num_topics=K_clusters, num_words=num_display_words, formatted=False)):
         output_text.append("Topic: " + str(i))
+        output_dict['Topic:'+str(i)] = []
         for term, weight in item[1] :
             output_text.append( term + " : " + str(weight) )
+            output_dict['Topic:'+str(i)].append(term + ":" + str(weight))
 
     print "writing topics to file:", outputfile
     with open ( outputfile, 'w' ) as f:
         f.write('\n'.join(output_text))
+
+    #json export
+    outputjson = 'sample_topics.json'
+    print "writing topics to file:", outputjson
+    with open( outputjson, 'w') as f:
+        f.write(json.dumps(output_dict))
         
         
 if __name__=="__main__":

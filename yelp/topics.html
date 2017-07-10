@@ -28,7 +28,7 @@
 }
 
 </style>
-<svg width="960" height="960"></svg>
+<svg width="650" height="650"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 
@@ -46,7 +46,7 @@ var pack = d3.pack()
     .size([diameter - margin, diameter - margin])
     .padding(2);
 
-d3.json("data/topic.json", function(error, root) {
+d3.json("data/d3_cluster_topic.json", function(error, root) {
   if (error) throw error;
 
   root = d3.hierarchy(root)
@@ -61,7 +61,7 @@ d3.json("data/topic.json", function(error, root) {
     .data(nodes)
     .enter().append("circle")
       .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
-      .style("fill", function(d) { return d.children ? color(d.depth) : null; })
+      .style("fill", function(d) { return d.children ? d.data.even ? color(d.depth + 5) : color(d.depth + 1) : null; })
       .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
 
   var text = g.selectAll("text")
