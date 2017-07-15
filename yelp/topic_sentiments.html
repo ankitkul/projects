@@ -115,13 +115,18 @@
       </div>
     </nav>
 
-    <h2 class="text-center">Yelp - Topic mining</h2>
-    <h4 class="text-center lead">Topic mining from reviews of businesses on Yelp</h4> 
+    <h2 class="text-center">Yelp - Topics by Ratings</h2>
+    <h4 class="text-center lead">Topics by ratings from reviews of businesses on Yelp</h4> 
       
     <div class="container">
         <!-- Chart Area -->
         <div class="chart" id="chart"></div>
-    
+        
+        <div class="text-right">
+            <h5>Legend:</h5>
+            <span class="label color1">Rating - High</span>
+            <span class="label color2">Rating - Low</span>
+        </div>
         <br/>    
         <div class="well well-sm">
             <h6>Source data: <a href="https://www.yelp.com/dataset_challenge">Yelp Dataset Challenge</a></h6>
@@ -167,7 +172,7 @@
             .data(nodes)
             .enter().append("circle")
               .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
-              .style("fill", function(d) { return d.children ? color(d.depth + 1) : null; })
+              .style("fill", function(d) { return d.children ? d.data.even ? color(d.depth + 5) : color(d.depth + 1) : null; })
               .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
 
           var text = g.selectAll("text")
