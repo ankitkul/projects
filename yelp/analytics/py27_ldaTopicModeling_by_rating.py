@@ -17,7 +17,6 @@ def main(K, numfeatures, sample_file, num_display_words, outputfile):
     text = []
     with open (sample_file, 'r') as f:
         text = f.readlines()
-    print len(text)    
 
     t0 = time()
     print("Extracting features from the training dataset using a sparse vectorizer")
@@ -51,7 +50,7 @@ def main(K, numfeatures, sample_file, num_display_words, outputfile):
         f.write('\n'.join(output_text))
 
     #json export
-    outputjson = 'sample_topics.json'
+    outputjson = outputfile + '.json'
     print "writing topics to file:", outputjson
     with open( outputjson, 'w') as f:
         f.write(json.dumps(output_dict))

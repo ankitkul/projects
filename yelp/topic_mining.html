@@ -128,7 +128,6 @@
             <h6>Credits: <a href="https://bl.ocks.org/mbostock/7607535">Zoomable Circle Packing</a></h6>
         </div>
     </div> <!-- /container -->
-    <svg width="650" height="650"></svg>
     
     <!-- D3 -->
     <script>
@@ -167,7 +166,7 @@
             .data(nodes)
             .enter().append("circle")
               .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
-              .style("fill", function(d) { return d.children ? color(d.depth + 1) : null; })
+              .style("fill", function(d) { return d.children ? color(d.depth + 3) : null; })
               .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
 
           var text = g.selectAll("text")
@@ -181,7 +180,6 @@
           var node = g.selectAll("circle,text");
 
           svg
-              .style("background", color(-1))
               .on("click", function() { zoom(root); });
 
           zoomTo([root.x, root.y, root.r * 2 + margin]);

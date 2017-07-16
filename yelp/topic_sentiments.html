@@ -63,10 +63,10 @@
         }
         
         .color1 {
-          background-color: rgb(51, 167, 194);
+          background-color: rgb(44, 160, 44);
         }
         .color2 {
-          background-color: rgb(75, 57, 101);
+          background-color: rgb(214, 39, 40);
         }
         
     </style>  
@@ -124,8 +124,8 @@
         
         <div class="text-right">
             <h5>Legend:</h5>
-            <span class="label color1">Rating - High</span>
-            <span class="label color2">Rating - Low</span>
+            <h4><span class="label color1">High rated reviews (Stars: 3,4,5)</span></h4>
+            <h4><span class="label color2">Low rated reviews (Stars: 1,2)</span></h4>
         </div>
         <br/>    
         <div class="well well-sm">
@@ -133,13 +133,12 @@
             <h6>Credits: <a href="https://bl.ocks.org/mbostock/7607535">Zoomable Circle Packing</a></h6>
         </div>
     </div> <!-- /container -->
-    <svg width="650" height="650"></svg>
     
     <!-- D3 -->
     <script>
         
-        var width = 650;
-        var height = 650;
+        var width = 750;
+        var height = 750;
 
         var svg = d3.select(".chart").append("svg")
                     .attr("width", width )
@@ -152,12 +151,12 @@
             .domain([-1, 5])
             .range(["hsl(152,80%,80%)", "hsl(228,30%,40%)"])
             .interpolate(d3.interpolateHcl);
-
+        
         var pack = d3.pack()
             .size([diameter - margin, diameter - margin])
             .padding(2);
 
-        d3.json("data/d3_cluster_topic.json", function(error, root) {
+        d3.json("data/d3_cluster_rating_topic.json", function(error, root) {
           if (error) throw error;
 
           root = d3.hierarchy(root)
@@ -172,7 +171,14 @@
             .data(nodes)
             .enter().append("circle")
               .attr("class", function(d) { return d.parent ? d.children ? "node" : "node node--leaf" : "node node--root"; })
-              .style("fill", function(d) { return d.children ? d.data.even ? color(d.depth + 5) : color(d.depth + 1) : null; })
+              .style("fill", function(d) {
+                  if (d.children) {
+                    if (d.data.name == 'Low Ratings') { return '#d62728';} 
+                    else if (d.data.name == 'High Ratings') { return '#2ca02c';}
+                    else {return '#DDDDDD';}  
+                  }
+                  else {return null;}
+              })
               .on("click", function(d) { if (focus !== d) zoom(d), d3.event.stopPropagation(); });
 
           var text = g.selectAll("text")
@@ -186,7 +192,7 @@
           var node = g.selectAll("circle,text");
 
           svg
-              .style("background", color(-1))
+              .style("background", '#ffffff')
               .on("click", function() { zoom(root); });
 
           zoomTo([root.x, root.y, root.r * 2 + margin]);
