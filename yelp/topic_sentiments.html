@@ -137,8 +137,12 @@
     <!-- D3 -->
     <script>
         
-        var width = 750;
-        var height = 750;
+        var margin = {top: 0, right: 10, bottom: 0, left: 10};
+        var width = document.getElementById('chart').clientWidth - margin.left - margin.right;
+        var height = document.getElementById('chart').clientWidth - margin.left - margin.right; 
+        
+        //var width = 750;
+        //var height = 750;
 
         var svg = d3.select(".chart").append("svg")
                     .attr("width", width )
