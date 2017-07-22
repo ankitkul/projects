@@ -132,19 +132,24 @@
     <!-- D3 -->
     <script>
         
-        var margin = {top: 0, right: 10, bottom: 0, left: 10};
+        var margin = {top: 0, right: 150, bottom: 0, left: 150};
         var width = document.getElementById('chart').clientWidth - margin.left - margin.right;
         var height = document.getElementById('chart').clientWidth - margin.left - margin.right;   
         
         //var width = 650;
         //var height = 650;
 
-        var svg = d3.select(".chart").append("svg")
+        var svg = d3.select(".chart")
+                    .append("svg")
                     .attr("width", width )
-                    .attr("height", height ),
+                    .attr("height", height )
+                    .style("margin-left", margin.left)
+                    .style("margin-right", margin.right),
             margin = 20,
             diameter = +svg.attr("width"),
-            g = svg.append("g").attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+            g = svg
+                .append("g")
+                .attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
 
         var color = d3.scaleLinear()
             .domain([-1, 5])
