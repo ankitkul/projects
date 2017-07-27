@@ -3,7 +3,8 @@
  "children": [
   {
    "name": "topic 1",
-   "children": [
+   "
+      ": [
     {
      "name": "cluster",
      "children": [
