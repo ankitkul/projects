@@ -131,20 +131,37 @@
     <h4 class="text-center lead">Cuisine similarities based on Yelp reviews</h4> 
       
     <div class="container">
-        <div class="col-md-2">  
+        <div class="col-md-10"> 
             <div class="btn-group">
-              <button class="btn btn-primary dropdown-toggle" type="button" id="orderby" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Order
+              <button class="btn btn-default dropdown-toggle" type="button" id="lda" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                LDA
                 <span class="caret"></span>
               </button>
-              <ul class="dropdown-menu" aria-labelledby="orderby" id="ddlOrder">
-                <li><a href="#name">By name</a></li>
-                <li><a href="#count">By frequency</a></li>
-                <li><a href="#group">By cluster</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="#spectral">Spectral</a></li>
+              <ul class="dropdown-menu" aria-labelledby="idf" id="ddlLda">
+                <li><a href="#lda_">Yes</a></li>
+                <li><a href="#">No</a></li>
               </ul>
             </div>
+            <div class="btn-group">
+              <button class="btn btn-default dropdown-toggle" type="button" id="idf" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                IDF
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="idf" id="ddlIdf">
+                <li><a href="#idf_">Yes</a></li>
+                <li><a href="#noidf_">No</a></li>
+              </ul>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-default dropdown-toggle" type="button" id="cluster" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Clustering
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="idf" id="ddlCluster">
+                <li><a href="#clustering_">Yes</a></li>
+                <li><a href="#">No</a></li>
+              </ul>
+            </div>           
             <!--
             <p>Order: 
             <select id="order">
@@ -159,19 +176,21 @@
             </select>
             -->
         </div>
-        <div class="col-md-2">
+        <div class="col-md-2 pull-right">
             <div class="btn-group">
-              <button class="btn btn-default dropdown-toggle" type="button" id="idf" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                IDF
+              <button class="btn btn-primary dropdown-toggle" type="button" id="orderby" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Order
                 <span class="caret"></span>
               </button>
-              <ul class="dropdown-menu" aria-labelledby="idf" id="ddlIdf">
-                <li><a href="#data/idf_lda_d3_sim_matrix.json">Yes</a></li>
-                <li><a href="#data/noidf_d3_sim_matrix.json">No</a></li>
+              <ul class="dropdown-menu" aria-labelledby="orderby" id="ddlOrder">
+                <li><a href="#name">By name</a></li>
+                <li><a href="#count">By frequency</a></li>
+                <li><a href="#group">By cluster</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#spectral">Spectral</a></li>
               </ul>
-            </div>
+            </div> 
         </div>
-
             <!--
         <p>Distance: <select id="distance">
           <option value="manhattan" selected="true">Manhattan</option>
@@ -190,35 +209,71 @@
             <h6>Source data: <a href="https://www.yelp.com/dataset_challenge">Yelp Dataset Challenge</a></h6>
             <h6>Credits: <a href="https://bost.ocks.org/mike/miserables/">Les Misérables Co-occurrence</a></h6>
         </div>
-    </div> <!-- /container -->    
+    </div> <!-- /container -->   
+      <input id="hdnCluster" type="hidden"/>
+      <input id="hdnIdf" type="hidden"/>
+      <input id="hdnLda" type="hidden"/>
 
 
     <script>
-
-        var margin = {top: 120, right: 0, bottom: 10, left: 120},
-            width = 720,
-            height = 720;
-
-        var x = d3.scale.ordinal().rangeBands([0, width]),
-            z = d3.scale.linear().domain([0, 4]).clamp(true),
-            c = d3.scale.category10().domain(d3.range(10));
-
-        var svg = d3.select(".chart").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .style("margin-left", margin.left + "px")
-          .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        d3.select("#idf").on("change", function() {
-            var data = this.value;
-            d3.json(data, loadJson);
-        });    
-
-        d3.json('data/clustering_idf_lda_d3_sim_matrix.json', loadJson);
+        d3.selectAll("#ddlLda li > a").on("click", function(){
+            var lda = this.getAttribute('href').split('#')[1];
+            var idf = d3.select("#hdnIdf").text();
+            var cluster = d3.select("#hdnCluster").text();
+            var fileName = 'data/'+ cluster + idf + lda + 'd3_sim_matrix.json'
+            
+            d3.select("#hdnLda").text(lda);
+            d3.select('#lda').html('LDA: ' + this.text + ' <span class="caret"></span>');
+            d3.select("svg").remove();
+            console.log(fileName);
+            d3.json(fileName, loadJson);
+        });         
+        
+        d3.selectAll("#ddlIdf li > a").on("click", function(){
+            var lda = d3.select("#hdnLda").text();
+            var idf = this.getAttribute('href').split('#')[1];
+            var cluster = d3.select("#hdnCluster").text();
+            var fileName = 'data/'+ cluster + idf + lda + 'd3_sim_matrix.json'
+            
+            d3.select("#hdnIdf").text(idf);
+            d3.select('#idf').html('IDF: ' + this.text + ' <span class="caret"></span>');
+            d3.select("svg").remove();
+            console.log(fileName);
+            d3.json(fileName, loadJson);
+        }); 
+        
+        d3.selectAll("#ddlCluster li > a").on("click", function(){
+            var lda = d3.select("#hdnLda").text();
+            var idf = d3.select("#hdnIdf").text();
+            var cluster = this.getAttribute('href').split('#')[1];
+            var fileName = 'data/'+ cluster + idf + lda + 'd3_sim_matrix.json'
+            
+            d3.select("#hdnCluster").text(cluster);
+            d3.select('#cluster').html('Clustering: ' + this.text + ' <span class="caret"></span>');
+            d3.select("svg").remove();
+            console.log(fileName);            
+            d3.json(fileName, loadJson);
+        }); 
+        
+        d3.json('data/clustering_idf_lda_d3_sim_matrix.json', loadJson);      
 
 
         function matrix(json) {
+            var margin = {top: 120, right: 0, bottom: 10, left: 120},
+                width = 720,
+                height = 720;
+
+            var x = d3.scale.ordinal().rangeBands([0, width]),
+                z = d3.scale.linear().domain([0, 4]).clamp(true),
+                c = d3.scale.category10().domain(d3.range(10));
+
+            var svg = d3.select(".chart").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .style("margin-left", margin.left + "px")
+              .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            
           var matrix = [],
               nodes = json.nodes,
               n = nodes.length;
@@ -471,6 +526,7 @@
                 d3.select('#orderby').html(this.text + ' <span class="caret"></span>');
                 mat.order(selected);
             });
+            
 
             d3.select("#order").on("change", function() {
         //	clearTimeout(mat.timeout);
