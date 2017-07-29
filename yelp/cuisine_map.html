@@ -216,11 +216,16 @@
 
 
     <script>
+        //Set defaults
+        d3.select("#hdnCluster").text('clustering_');
+        d3.select("#hdnIdf").text('idf_');
+        d3.select("#hdnLda").text('lda_');
+        
         d3.selectAll("#ddlLda li > a").on("click", function(){
             var lda = this.getAttribute('href').split('#')[1];
             var idf = d3.select("#hdnIdf").text();
             var cluster = d3.select("#hdnCluster").text();
-            var fileName = 'data/'+ cluster + idf + lda + 'd3_sim_matrix.json'
+            var fileName = 'data/cuisine_map/'+ cluster + idf + lda + 'd3_sim_matrix.json'
             
             d3.select("#hdnLda").text(lda);
             d3.select('#lda').html('LDA: ' + this.text + ' <span class="caret"></span>');
@@ -233,7 +238,7 @@
             var lda = d3.select("#hdnLda").text();
             var idf = this.getAttribute('href').split('#')[1];
             var cluster = d3.select("#hdnCluster").text();
-            var fileName = 'data/'+ cluster + idf + lda + 'd3_sim_matrix.json'
+            var fileName = 'data/cuisine_map/'+ cluster + idf + lda + 'd3_sim_matrix.json'
             
             d3.select("#hdnIdf").text(idf);
             d3.select('#idf').html('IDF: ' + this.text + ' <span class="caret"></span>');
@@ -246,7 +251,7 @@
             var lda = d3.select("#hdnLda").text();
             var idf = d3.select("#hdnIdf").text();
             var cluster = this.getAttribute('href').split('#')[1];
-            var fileName = 'data/'+ cluster + idf + lda + 'd3_sim_matrix.json'
+            var fileName = 'data/cuisine_map/'+ cluster + idf + lda + 'd3_sim_matrix.json'
             
             d3.select("#hdnCluster").text(cluster);
             d3.select('#cluster').html('Clustering: ' + this.text + ' <span class="caret"></span>');
@@ -255,7 +260,7 @@
             d3.json(fileName, loadJson);
         }); 
         
-        d3.json('data/clustering_idf_lda_d3_sim_matrix.json', loadJson);      
+        d3.json('data/cuisine_map/clustering_idf_lda_d3_sim_matrix.json', loadJson);      
 
 
         function matrix(json) {
