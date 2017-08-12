@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>viz-ing</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      
+    <!-- d3js -->  
+    <script src="https://d3js.org/d3.v4.min.js"></script> 
+    <script src="data/colorbrewer.min.js"></script>  
+
+    <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <style type="text/css">
+        body {
+          padding-top: 70px;
+        }
+        
+        .navbar-brand {
+            font-family: 'VT323', monospace;
+            font-size: 36px;
+            color: #111 !important;
+        }
+
+        .chart {
+          background: #fff;
+        }
+        
+        .chart svg {
+            font-size: 12px;
+            text-anchor: middle;
+            line-height: 10px;
+        }
+
+        .node {
+          cursor: pointer;
+        }
+        
+        .a-node:hover{
+            text-decoration: none;
+        }
+
+        .node:hover circle {
+          fill: orange;
+        }
+
+        .cluster-label {
+          font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+          text-anchor: middle;
+          text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+        }
+
+        .cluster-label,
+        .node--root,
+        .node--leaf {
+          pointer-events: none;
+        }
+        
+    </style>  
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a href="../index.html" class="navbar-brand">VIZ-ING</a>    
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+        <!--      
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+         -->
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <h2 class="text-center">Yelp - Popular Indian Dishes</h2>
+    <h4 class="text-center lead">Popular dishes from reviews of businesses on Yelp</h4> 
+      
+    <div class="container">
+        <!-- Chart Area -->
+        <div class="chart" id="chart"></div>
+    
+        <br/>    
+        <div class="well well-sm">
+            <h6>Source data: <a href="https://www.yelp.com/dataset_challenge">Yelp Dataset Challenge</a></h6>
+            <h6>Credits: <a href="https://bl.ocks.org/mbostock/4063269">Bubble Chart</a></h6>
+        </div>
+    </div> <!-- /container -->
+    
+    <!-- D3 -->
+    <script>
+        
+        var margin = {top: 0, right: 150, bottom: 0, left: 150};
+        var width = document.getElementById('chart').clientWidth - margin.left - margin.right;
+        var height = document.getElementById('chart').clientWidth - margin.left - margin.right;   
+
+        var svg = d3.select(".chart")
+                    .append("svg")
+                    .attr("width", width )
+                    .attr("height", height )
+                    .style("margin-left", margin.left)
+                    .style("margin-right", margin.right);
+
+        var format = d3.format(",d");
+
+        //var color = d3.scaleOrdinal(d3.schemeCategory10);
+        /*var color = d3.scaleLinear()
+            .domain([1, 5])
+            .range([d3.rgb("#e41a1c"), d3.rgb('#FFF500')])
+            .interpolate(d3.interpolateHcl);
+        */
+        var color = colorbrewer['RdYlBu'][6]
+        
+        var pack = d3.pack()
+            .size([width, height])
+            .padding(1.5);
+
+        d3.csv("data/popular_dish_w_ratings.csv", function(d) {
+          d.value = +d.value;
+          if (d.value) return d;
+        }, function(error, classes) {
+          if (error) throw error;
+
+          var root = d3.hierarchy({children: classes})
+              .sum(function(d) { return d.value; })
+              .each(function(d) {
+                if (id = d.data.id) {
+                  var id, i = id.lastIndexOf(".");
+                  d.id = id;
+                  d.url = id.replace(/ /g,'_');
+                  d.rating = d.data.rating;
+                  d.class = id;
+                }
+              });
+               
+
+          var node = svg.selectAll(".node")
+            .data(pack(root).leaves())
+            .enter().append("a")
+              .attr("href", function(d) { return "#"+ d.url;})
+              .attr("class", "a-node")
+              .append("g")
+              .attr("class", "node")
+              .style("font-size", function(d) {return d.r * 0.2 + "px";})
+              .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+          node.append("circle")
+              .attr("id", function(d) { return d.id; })
+              .attr("r", function(d) { return d.r; })
+              .style("fill", function(d) { return color[d.rating-1]; });
+            
+          node.append("clipPath")
+              .attr("id", function(d) { return "clip-" + d.id; })
+            .append("use")
+              .attr("xlink:href", function(d) { return "#" + d.id; });
+
+          node.append("text")
+              .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
+            .selectAll("tspan")
+            .data(function(d) { return d.class.split(/(?=[A-Z][^A-Z])/g); })
+            .enter().append("tspan")
+              .attr("x", 0)
+              .attr("y", function(d, i, nodes) { return 13 + (i - nodes.length / 2 - 0.5) * 10; })
+              .text(function(d) { return d; });
+
+          node.append("title")
+              .text(function(d) { return d.id + "\nMentions:" + format(d.value) + "\nRating:" + format(d.rating); });
+        });
+
+    </script>
+
+ <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  </body>
+</html>
