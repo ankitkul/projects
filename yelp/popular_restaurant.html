@@ -153,7 +153,7 @@
             .size([width, height])
             .padding(0.5);
         
-        d3.csv("data/popular_dish_w_ratings.csv", function(d) {
+        d3.csv("data/popular_restaurant_garlic naan.csv", function(d) {
           d.value = +d.value;
           if (d.value) return d;
         }, function(error, classes) {
@@ -161,7 +161,7 @@
 
           var root = d3.hierarchy({children: classes})
               .sum(function(d) { return d.value; })
-          .sort(function(a, b) { return b.value - a.value; })
+              .sort(function(a, b) { return b.value - a.value; })
               .each(function(d) {
                 if (id = d.data.id) {
                   var id, i = id.lastIndexOf(".");
@@ -170,6 +170,9 @@
                   d.rating = d.data.rating;
                   d.freq = d.data.freq;    
                   d.class = id;
+                  d.city = d.data.city;
+                    d.state = d.data.state;
+                    d.stars = d.data.stars;
                 }
               });
                
@@ -204,7 +207,7 @@
               .text(function(d) { return d; });
 
           node.append("title")
-              .text(function(d) { return d.id + "\nScore: " + format(d.value) + "\nMention: " + format(d.freq) + "\nRating: " + format(d.rating); });
+              .text(function(d) { return d.id + "\nScore: " + format(d.value) + "\nMention: " + format(d.freq) + "\nRating: " + format(d.rating) + "\nLocation: " + d.city + "-" + d.state + "\nRestaurant stars: " + d.stars; });
         });
 
     </script>
