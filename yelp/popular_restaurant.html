@@ -115,6 +115,18 @@
     <h4 class="text-center lead">Popular Restaurants by Dish from reviews of Indian restaurants on Yelp</h4> 
       
     <div class="container">
+        <div class="col-md-10"> 
+            <div class="btn-group">
+              <button class="btn btn-primary dropdown-toggle" type="button" id="dish" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Dish Name
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="idf" id="ddlDish">
+                <li><a href="#chicken tikka masala">Chicken Tikka Masala</a></li>
+                <li><a href="#garlic naan">Garlic Naan</a></li>
+              </ul>
+            </div>
+        </div>    
         <!-- Chart Area -->
         <div class="chart" id="chart"></div>
     
@@ -127,6 +139,20 @@
     
     <!-- D3 -->
     <script>
+        d3.selectAll("#ddlDish li > a").on("click", function(){
+            var dish = this.getAttribute('href').split('#')[1];
+            var fileName = 'data/popular_restaurant_'+ dish + '.csv'
+            
+            d3.select('#dish').html('Dish Name: ' + this.text + ' <span class="caret"></span>');
+            d3.select("svg").remove();
+            console.log(fileName);
+            drawPlot(fileName);
+            //d3.json(fileName, loadJson);
+        }); 
+        
+        drawPlot();
+        
+        function drawPlot(fileName) {
         
         var margin = {top: 0, right: 150, bottom: 0, left: 150};
         var width = document.getElementById('chart').clientWidth - margin.left - margin.right;
@@ -153,7 +179,7 @@
             .size([width, height])
             .padding(0.5);
         
-        d3.csv("data/popular_restaurant_garlic naan.csv", function(d) {
+        d3.csv(fileName, function(d) {
           d.value = +d.value;
           if (d.value) return d;
         }, function(error, classes) {
@@ -184,7 +210,7 @@
               .attr("class", "a-node")
               .append("g")
               .attr("class", "node")
-              .style("font-size", function(d) {return d.r * 0.2 + "px";})
+              .style("font-size", function(d) { return Math.min(14, d.r * 0.25) + "px";} )
               .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
           node.append("circle")
@@ -193,22 +219,23 @@
               .style("fill", function(d) { return color[d.rating-1]; });
             
           node.append("clipPath")
-              .attr("id", function(d) { return "clip-" + d.id; })
+              .attr("id", function(d) { return "clip-" + d.url; })
             .append("use")
-              .attr("xlink:href", function(d) { return "#" + d.id; });
+              .attr("xlink:href", function(d) { return "#" + d.url; });
 
           node.append("text")
               .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
             .selectAll("tspan")
-            .data(function(d) { return d.class.split(/(?=[A-Z][^A-Z])/g); })
+            .data(function(d) {return d.class.length > 10 ? d.class.split(/(?=[A-Z][^A-Z])/g) : [d.class]; })
             .enter().append("tspan")
               .attr("x", 0)
-              .attr("y", function(d, i, nodes) { return 13 + (i - nodes.length / 2 - 0.5) * 10; })
+              .attr("y", function(d, i, nodes) { return 15 + (i - nodes.length / 2 - 0.5) * 12; })
               .text(function(d) { return d; });
 
           node.append("title")
-              .text(function(d) { return d.id + "\nScore: " + format(d.value) + "\nMention: " + format(d.freq) + "\nRating: " + format(d.rating) + "\nLocation: " + d.city + "-" + d.state + "\nRestaurant stars: " + d.stars; });
+              .text(function(d) { return d.id + "\nScore: " + format(d.value) + "\nMention: " + format(d.freq) + "\nAvg. dish rating: " + format(d.rating) + "\nLocation: " + d.city + "-" + d.state + "\nRestaurant rating: " + d.stars; });
         });
+        }
 
     </script>
 

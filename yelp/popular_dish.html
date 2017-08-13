@@ -190,9 +190,9 @@
               .style("fill", function(d) { return color[d.rating-1]; });
             
           node.append("clipPath")
-              .attr("id", function(d) { return "clip-" + d.id; })
+              .attr("id", function(d) { return "clip-" + d.url; })
             .append("use")
-              .attr("xlink:href", function(d) { return "#" + d.id; });
+              .attr("xlink:href", function(d) { return "#" + d.url; });
 
           node.append("text")
               .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
