@@ -112,7 +112,7 @@
     </nav>
 
     <h2 class="text-center">Yelp - Popular Indian Dishes</h2>
-    <h4 class="text-center lead">Popular dishes from reviews of businesses on Yelp</h4> 
+    <h4 class="text-center lead">Popular dishes from reviews of Indian restaurants on Yelp</h4> 
       
     <div class="container">
         <!-- Chart Area -->
@@ -151,8 +151,8 @@
         
         var pack = d3.pack()
             .size([width, height])
-            .padding(1.5);
-
+            .padding(0.5);
+        
         d3.csv("data/popular_dish_w_ratings.csv", function(d) {
           d.value = +d.value;
           if (d.value) return d;
@@ -161,12 +161,14 @@
 
           var root = d3.hierarchy({children: classes})
               .sum(function(d) { return d.value; })
+          .sort(function(a, b) { return b.value - a.value; })
               .each(function(d) {
                 if (id = d.data.id) {
                   var id, i = id.lastIndexOf(".");
                   d.id = id;
                   d.url = id.replace(/ /g,'_');
                   d.rating = d.data.rating;
+                  d.freq = d.data.freq;    
                   d.class = id;
                 }
               });
@@ -202,7 +204,7 @@
               .text(function(d) { return d; });
 
           node.append("title")
-              .text(function(d) { return d.id + "\nMentions:" + format(d.value) + "\nRating:" + format(d.rating); });
+              .text(function(d) { return d.id + "\nScore: " + format(d.value) + "\nMention: " + format(d.freq) + "\nRating: " + format(d.rating); });
         });
 
     </script>
