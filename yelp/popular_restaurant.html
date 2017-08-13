@@ -30,6 +30,14 @@
             font-size: 36px;
             color: #111 !important;
         }
+        
+        .dropdown-menu img {
+            height: 48px;
+            width: 48px;
+            border-radius: 50%;
+            border: 1px solid #CCCCCC;
+            margin-right: 5px;
+        }
 
         .chart {
           background: #fff;
@@ -65,6 +73,25 @@
           pointer-events: none;
         }
         
+        .label{
+            color: #111;
+        }
+        
+        .color1 {
+            background-color: rgb(44, 123, 182);
+        }
+        .color2 {
+            background-color: rgb(171, 217, 233)
+        }
+        .color3 {
+            background-color: rgb(255, 255, 191);
+        }
+        .color4 {
+            background-color: rgb(253, 174, 97);
+        }
+        .color5 {
+            background-color: rgb(215, 25, 28);
+        }
     </style>  
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -122,16 +149,40 @@
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" aria-labelledby="idf" id="ddlDish">
-                <li><a href="#chicken tikka masala">Chicken Tikka Masala</a></li>
-                <li><a href="#garlic naan">Garlic Naan</a></li>
-                <li><a href="#tandoori chicken">Tandoori chicken</a></li>
+                <li><a href="#chicken tikka masala">
+                    <img src="https://s-media-cache-ak0.pinimg.com/originals/23/4f/f7/234ff75561f3c948f3fb7ac465b72c22.jpg"/>
+                    Chicken Tikka Masala</a></li>
+                <li><a href="#garlic naan">
+                    <img src="https://bigoven-res.cloudinary.com/image/upload/t_recipe-256/garlic-naan-bread-bfd425.jpg"/>
+                    Garlic Naan</a></li>
+                <li><a href="#tandoori chicken">
+                    <img src="https://bigoven-res.cloudinary.com/image/upload/t_recipe-256/tandoori-chicken-1784752.jpg"/>
+                    Tandoori chicken</a></li>
+                <li><a href="#mango lassi">
+                    <img src="http://bigoven-res.cloudinary.com/image/upload/t_recipe-256/vegan-mango-lassi-2.jpg"/>
+                    Mango Lassi</a></li>
+                <li><a href="#lamb vindaloo">
+                    <img src="https://bigoven-res.cloudinary.com/image/upload/t_recipe-256/indian-butter-chicken-8.jpg"/>
+                    Lamb Vindaloo</a></li>
+                <li><a href="#vegetable samosas">
+                    <img src="http://clarewhitecafe.com/wp-content/uploads/2016/05/shutterstock_331838579-samosa-128x128.jpg"/>
+                    Vegetable Samosa</a></li>
               </ul>
             </div>
         </div>    
         <!-- Chart Area -->
         <div class="chart" id="chart"></div>
     
-        <br/>    
+        <br/> 
+        <div class="text-right">
+            <h5>Legend:</h5>
+            <h4>Popularity represented as circle size: Bigger the more popular</h4>
+            <h4><span class="label color1">Highest(5) - Avg. dish rating</span></h4>
+            <h4><span class="label color2">High(4) - Avg. dish rating</span></h4>
+            <h4><span class="label color3">Neutral(3) - Avg. dish rating</span></h4>
+            <h4><span class="label color4">Low(2) - Avg. dish rating</span></h4>
+            <h4><span class="label color5">Lowest(1) - Avg. dish rating</span></h4>
+        </div>
         <div class="well well-sm">
             <h6>Source data: <a href="https://www.yelp.com/dataset_challenge">Yelp Dataset Challenge</a></h6>
             <h6>Credits: <a href="https://bl.ocks.org/mbostock/4063269">Bubble Chart</a></h6>
@@ -142,100 +193,91 @@
     <script>
         d3.selectAll("#ddlDish li > a").on("click", function(){
             var dish = this.getAttribute('href').split('#')[1];
-            var fileName = 'data/popular_restaurant_'+ dish + '.csv'
+            var fileName = 'data/popular_restaurant/popular_restaurant_'+ dish + '.csv'
             
             d3.select('#dish').html('Dish Name: ' + this.text + ' <span class="caret"></span>');
             d3.select("svg").remove();
             console.log(fileName);
             drawPlot(fileName);
-            //d3.json(fileName, loadJson);
         }); 
-        
-        drawPlot();
-        
+                
         function drawPlot(fileName) {
         
-        var margin = {top: 0, right: 150, bottom: 0, left: 150};
-        var width = document.getElementById('chart').clientWidth - margin.left - margin.right;
-        var height = document.getElementById('chart').clientWidth - margin.left - margin.right;   
+            var margin = {top: 0, right: 150, bottom: 0, left: 150};
+            var width = document.getElementById('chart').clientWidth - margin.left - margin.right;
+            var height = document.getElementById('chart').clientWidth - margin.left - margin.right;   
 
-        var svg = d3.select(".chart")
-                    .append("svg")
-                    .attr("width", width )
-                    .attr("height", height )
-                    .style("margin-left", margin.left)
-                    .style("margin-right", margin.right);
+            var svg = d3.select(".chart")
+                        .append("svg")
+                        .attr("width", width )
+                        .attr("height", height )
+                        .style("margin-left", margin.left)
+                        .style("margin-right", margin.right);
 
-        var format = d3.format(",d");
+            var format = d3.format(",d");
 
-        //var color = d3.scaleOrdinal(d3.schemeCategory10);
-        /*var color = d3.scaleLinear()
-            .domain([1, 5])
-            .range([d3.rgb("#e41a1c"), d3.rgb('#FFF500')])
-            .interpolate(d3.interpolateHcl);
-        */
-        var color = colorbrewer['RdYlBu'][6]
-        
-        var pack = d3.pack()
-            .size([width, height])
-            .padding(0.5);
-        
-        d3.csv(fileName, function(d) {
-          d.value = +d.value;
-          if (d.value) return d;
-        }, function(error, classes) {
-          if (error) throw error;
+            var color = colorbrewer['RdYlBu'][5]
 
-          var root = d3.hierarchy({children: classes})
-              .sum(function(d) { return d.value; })
-              .sort(function(a, b) { return b.value - a.value; })
-              .each(function(d) {
-                if (id = d.data.id) {
-                  var id, i = id.lastIndexOf(".");
-                  d.id = id;
-                  d.url = id.replace(/ /g,'_');
-                  d.rating = d.data.rating;
-                  d.freq = d.data.freq;    
-                  d.class = id;
-                  d.city = d.data.city;
-                    d.state = d.data.state;
-                    d.stars = d.data.stars;
-                }
-              });
-               
+            var pack = d3.pack()
+                .size([width, height])
+                .padding(0.5);
 
-          var node = svg.selectAll(".node")
-            .data(pack(root).leaves())
-            .enter().append("a")
-              .attr("href", function(d) { return "#"+ d.url;})
-              .attr("class", "a-node")
-              .append("g")
-              .attr("class", "node")
-              .style("font-size", function(d) { return Math.min(14, d.r * 0.25) + "px";} )
-              .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+            d3.csv(fileName, function(d) {
+              d.value = +d.value;
+              if (d.value) return d;
+            }, function(error, classes) {
+              if (error) throw error;
 
-          node.append("circle")
-              .attr("id", function(d) { return d.id; })
-              .attr("r", function(d) { return d.r; })
-              .style("fill", function(d) { return color[d.rating-1]; });
-            
-          node.append("clipPath")
-              .attr("id", function(d) { return "clip-" + d.url; })
-            .append("use")
-              .attr("xlink:href", function(d) { return "#" + d.url; });
+              var root = d3.hierarchy({children: classes})
+                  .sum(function(d) { return d.value; })
+                  .sort(function(a, b) { return b.value - a.value; })
+                  .each(function(d) {
+                    if (id = d.data.id) {
+                      var id, i = id.lastIndexOf(".");
+                      d.id = id;
+                      d.url = id.replace(/ /g,'_');
+                      d.rating = d.data.rating;
+                      d.freq = d.data.freq;    
+                      d.class = id;
+                      d.city = d.data.city;
+                        d.state = d.data.state;
+                        d.stars = d.data.stars;
+                    }
+                  });
 
-          node.append("text")
-              .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
-            .selectAll("tspan")
-            .data(function(d) {return d.class.length > 10 ? d.class.split(/(?=[A-Z][^A-Z])/g) : [d.class]; })
-            .enter().append("tspan")
-              .attr("x", 0)
-              .attr("y", function(d, i, nodes) { return 15 + (i - nodes.length / 2 - 0.5) * 12; })
-              .text(function(d) { return d; });
 
-          node.append("title")
-              .text(function(d) { return d.id + "\nScore: " + format(d.value) + "\nMention: " + format(d.freq) + "\nAvg. dish rating: " + format(d.rating) + "\nLocation: " + d.city + "-" + d.state + "\nRestaurant rating: " + d.stars; });
-        });
+              var node = svg.selectAll(".node")
+                .data(pack(root).leaves())
+                .enter().append("a")
+                  .attr("href", function(d) { return "#"+ d.url;})
+                  .attr("class", "a-node")
+                  .append("g")
+                  .attr("class", "node")
+                  .style("font-size", function(d) { return Math.min(14, d.r * 0.25) + "px";} )
+                  .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+              node.append("circle")
+                  .attr("id", function(d) { return d.id; })
+                  .attr("r", function(d) { return d.r; })
+                  .style("fill", function(d) { return color[d.rating-1]; });
+
+              node.append("clipPath")
+                  .attr("id", function(d) { return "clip-" + d.url; })
+                .append("use")
+                  .attr("xlink:href", function(d) { return "#" + d.url; });
+
+              node.append("text")
+                  .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
+                .selectAll("tspan")
+                .data(function(d) {return d.class.length > 10 ? d.class.split(/(?=[A-Z][^A-Z])/g) : [d.class]; })
+                .enter().append("tspan")
+                  .attr("x", 0)
+                  .attr("y", function(d, i, nodes) { return 15 + (i - nodes.length / 2 - 0.5) * 12; })
+                  .text(function(d) { return d; });
+
+              node.append("title")
+                  .text(function(d) { return d.id + "\nScore: " + format(d.value) + "\nMention: " + format(d.freq) + "\nAvg. dish rating: " + format(d.rating) + "\nLocation: " + d.city + "-" + d.state + "\nRestaurant rating: " + d.stars; });
+            });
         }
 
     </script>
