@@ -16,7 +16,7 @@
       
     <!-- d3js -->  
     <script src="https://d3js.org/d3.v4.min.js"></script> 
-
+    <script src="data/colorbrewer.min.js"></script>  
 
     <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
     <!-- Custom styles for this template -->
@@ -33,21 +33,38 @@
 
         .chart {
           background: #fff;
-            height: 400px;
+        }
+        
+        .chart svg {
+            font-size: 12px;
+            text-anchor: middle;
+            line-height: 10px;
         }
 
-         .bar {
-          fill: steelblue;
+        .node {
+          cursor: pointer;
+        }
+        
+        .a-node:hover{
+            text-decoration: none;
         }
 
-        .bar:hover {
-          fill: brown;
+        .node:hover circle {
+          fill: orange;
         }
 
-        .axis--x path {
-          display: none;
+        .cluster-label {
+          font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+          text-anchor: middle;
+          text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
         }
-           
+
+        .cluster-label,
+        .node--root,
+        .node--leaf {
+          pointer-events: none;
+        }
+        
     </style>  
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -94,8 +111,8 @@
       </div>
     </nav>
 
-    <h2 class="text-center">Yelp - Popular Indian Dishes</h2>
-    <h4 class="text-center lead">Popular dishes from reviews of businesses on Yelp</h4> 
+    <h2 class="text-center">Yelp - Popular Indian Restaurants</h2>
+    <h4 class="text-center lead">Popular Restaurants from reviews of Indian restaurants on Yelp</h4> 
       
     <div class="container">
         <!-- Chart Area -->
@@ -111,11 +128,9 @@
     <!-- D3 -->
     <script>
         
-        var margin = {top: 0, right: 50, bottom: 0, left: 50};
+        var margin = {top: 0, right: 150, bottom: 0, left: 150};
         var width = document.getElementById('chart').clientWidth - margin.left - margin.right;
-        var height = document.getElementById('chart').clientHeight - margin.top - margin.bottom;   
-
-        var color = d3.scaleOrdinal(d3.schemeCategory20c);
+        var height = document.getElementById('chart').clientWidth - margin.left - margin.right;   
 
         var svg = d3.select(".chart")
                     .append("svg")
@@ -123,47 +138,75 @@
                     .attr("height", height )
                     .style("margin-left", margin.left)
                     .style("margin-right", margin.right);
-        
-        var x = d3.scaleBand().rangeRound([0, width]).padding(0.2),
-            y = d3.scaleLinear().rangeRound([height - 5, 0]);
-        
-        var g = svg.append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        d3.csv("data/top-dishes.csv", function(d) {
+        var format = d3.format(",d");
+
+        //var color = d3.scaleOrdinal(d3.schemeCategory10);
+        /*var color = d3.scaleLinear()
+            .domain([1, 5])
+            .range([d3.rgb("#e41a1c"), d3.rgb('#FFF500')])
+            .interpolate(d3.interpolateHcl);
+        */
+        var color = colorbrewer['RdYlBu'][6]
+        
+        var pack = d3.pack()
+            .size([width, height])
+            .padding(0.5);
+        
+        d3.csv("data/popular_dish_w_ratings.csv", function(d) {
           d.value = +d.value;
-          return d;
-        }, function(error, data) {
+          if (d.value) return d;
+        }, function(error, classes) {
           if (error) throw error;
 
-          x.domain(data.map(function(d) { return d.id; }));
-          y.domain([0, d3.max(data, function(d) { return d.value; })]);
+          var root = d3.hierarchy({children: classes})
+              .sum(function(d) { return d.value; })
+          .sort(function(a, b) { return b.value - a.value; })
+              .each(function(d) {
+                if (id = d.data.id) {
+                  var id, i = id.lastIndexOf(".");
+                  d.id = id;
+                  d.url = id.replace(/ /g,'_');
+                  d.rating = d.data.rating;
+                  d.freq = d.data.freq;    
+                  d.class = id;
+                }
+              });
+               
 
-          g.append("g")
-              .attr("class", "axis axis--x")
-              .attr("transform", "translate(0," + height + ")")
-              .call(d3.axisBottom(x));
+          var node = svg.selectAll(".node")
+            .data(pack(root).leaves())
+            .enter().append("a")
+              .attr("href", function(d) { return "#"+ d.url;})
+              .attr("class", "a-node")
+              .append("g")
+              .attr("class", "node")
+              .style("font-size", function(d) {return d.r * 0.2 + "px";})
+              .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-          g.append("g")
-              .attr("class", "axis axis--y")
-              .call(d3.axisLeft(y))
-            .append("text")
-              .attr("transform", "rotate(-90)")
-              .attr("y", 6)
-              .attr("dy", "0.71em")
-              .attr("text-anchor", "end")
-              .text("Frequency");
+          node.append("circle")
+              .attr("id", function(d) { return d.id; })
+              .attr("r", function(d) { return d.r; })
+              .style("fill", function(d) { return color[d.rating-1]; });
             
-          g.selectAll(".bar")
-            .data(data)
-            .enter().append("rect")
-              .attr("class", "bar")
-              .attr("x", function(d) { return x(d.id); })
-              .attr("y", function(d) { return y(d.value); })
-              //.style("fill", function(d) { return color(d.id); })
-              .attr("width", x.bandwidth())
-              .attr("height", function(d) { return height - y(d.value); });
+          node.append("clipPath")
+              .attr("id", function(d) { return "clip-" + d.id; })
+            .append("use")
+              .attr("xlink:href", function(d) { return "#" + d.id; });
+
+          node.append("text")
+              .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
+            .selectAll("tspan")
+            .data(function(d) { return d.class.split(/(?=[A-Z][^A-Z])/g); })
+            .enter().append("tspan")
+              .attr("x", 0)
+              .attr("y", function(d, i, nodes) { return 13 + (i - nodes.length / 2 - 0.5) * 10; })
+              .text(function(d) { return d; });
+
+          node.append("title")
+              .text(function(d) { return d.id + "\nScore: " + format(d.value) + "\nMention: " + format(d.freq) + "\nRating: " + format(d.rating); });
         });
+
     </script>
 
  <!-- Bootstrap core JavaScript
