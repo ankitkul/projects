@@ -61,18 +61,6 @@
           fill: orange;
         }
 
-        .cluster-label {
-          font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
-          text-anchor: middle;
-          text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
-        }
-
-        .cluster-label,
-        .node--root,
-        .node--leaf {
-          pointer-events: none;
-        }
-        
         .label{
             color: #111;
         }
@@ -81,10 +69,10 @@
             background-color: rgb(44, 123, 182);
         }
         .color2 {
-            background-color: rgb(171, 217, 233)
+            background-color: rgb(171, 217, 233);
         }
         .color3 {
-            background-color: rgb(255, 255, 191);
+            background-color: rgb(239, 241, 161);
         }
         .color4 {
             background-color: rgb(253, 174, 97);
@@ -216,7 +204,8 @@
 
             var format = d3.format(",d");
 
-            var color = colorbrewer['RdYlBu'][5]
+            //var color = colorbrewer['RdYlBu'][5]
+            var color = ['rgb(215, 25, 28)','rgb(253, 174, 97)','rgb(239, 241, 161)','rgb(171, 217, 233)','rgb(44, 123, 182)']
 
             var pack = d3.pack()
                 .size([width, height])

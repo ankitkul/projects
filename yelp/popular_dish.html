@@ -52,18 +52,26 @@
         .node:hover circle {
           fill: orange;
         }
-
-        .cluster-label {
-          font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
-          text-anchor: middle;
-          text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff, 0 -1px 0 #fff;
+        
+        .label{
+            color: #111;
         }
-
-        .cluster-label,
-        .node--root,
-        .node--leaf {
-          pointer-events: none;
+        
+        .color1 {
+            background-color: rgb(44, 123, 182);
         }
+        .color2 {
+            background-color: rgb(171, 217, 233);
+        }
+        .color3 {
+            background-color: rgb(239, 241, 161);
+        }
+        .color4 {
+            background-color: rgb(253, 174, 97);
+        }
+        .color5 {
+            background-color: rgb(215, 25, 28);
+        }        
         
     </style>  
 
@@ -119,6 +127,15 @@
         <div class="chart" id="chart"></div>
     
         <br/>    
+        <div class="text-right">
+            <h5>Legend:</h5>
+            <h4>Popularity represented as circle size: Bigger the more popular</h4>
+            <h4><span class="label color1">Highest(5) - Avg. dish rating</span></h4>
+            <h4><span class="label color2">High(4) - Avg. dish rating</span></h4>
+            <h4><span class="label color3">Neutral(3) - Avg. dish rating</span></h4>
+            <h4><span class="label color4">Low(2) - Avg. dish rating</span></h4>
+            <h4><span class="label color5">Lowest(1) - Avg. dish rating</span></h4>
+        </div>
         <div class="well well-sm">
             <h6>Source data: <a href="https://www.yelp.com/dataset_challenge">Yelp Dataset Challenge</a></h6>
             <h6>Credits: <a href="https://bl.ocks.org/mbostock/4063269">Bubble Chart</a></h6>
@@ -141,13 +158,8 @@
 
         var format = d3.format(",d");
 
-        //var color = d3.scaleOrdinal(d3.schemeCategory10);
-        /*var color = d3.scaleLinear()
-            .domain([1, 5])
-            .range([d3.rgb("#e41a1c"), d3.rgb('#FFF500')])
-            .interpolate(d3.interpolateHcl);
-        */
-        var color = colorbrewer['RdYlBu'][6]
+        //var color = colorbrewer['RdYlBu'][6]
+        var color = ['rgb(215, 25, 28)','rgb(253, 174, 97)','rgb(239, 241, 161)','rgb(171, 217, 233)','rgb(44, 123, 182)']
         
         var pack = d3.pack()
             .size([width, height])
