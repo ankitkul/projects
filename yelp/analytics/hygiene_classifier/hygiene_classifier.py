@@ -2,6 +2,7 @@ import os
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+import sklearn.metrics as metrics
 import numpy as np
 import pandas as pd
 
@@ -35,7 +36,9 @@ def bow():
     vectorizer = CountVectorizer(analyzer = "word", tokenizer = None,
                              preprocessor = None, \
                              stop_words = None,   \
-                             max_features = 5000)
+                             max_features = 5000, 
+                             min_df = 2,
+                             max_df = 0.5)
 
     train_data_features = vectorizer.fit_transform(corpus[:546])
     train_data_features = train_data_features.toarray()
@@ -48,14 +51,19 @@ def main():
     train = pd.read_csv(training_label, header=0)
     
     data_features = bow()
-    train_data_features = data_features[:500, :]
-    validation_data_features = data_features[500:546, :]
-    #forest = RandomForestClassifier(n_estimators = 100)
-    logistic = LogisticRegression()
-    logistic = logistic.fit(train_data_features, train['y'][:500])
 
-    result = logistic.score(validation_data_features, train['y'][500:546])
-    print result
+    t_size = [50,100,150,200,250,300,350]
+
+    for i in t_size:
+        train_data_features = data_features[:i, :]
+        test_data_features = data_features[i:546, :]
+        #forest = RandomForestClassifier(n_estimators = 100)
+        logistic = LogisticRegression()
+        logistic = logistic.fit(train_data_features, train['y'][:i])
+        y_pred = logistic.predict(test_data_features)
+
+        f1_score = metrics.f1_score(train['y'][i:546], y_pred)
+        print 'Logistic Regression - train_size: %i f1_score: %f' % (i, f1_score)
 
 if __name__ == '__main__':
     main()
