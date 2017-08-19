@@ -1,8 +1,10 @@
 import os
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 import sklearn.metrics as metrics
+from sklearn import svm
 import numpy as np
 import pandas as pd
 
@@ -53,17 +55,37 @@ def main():
     data_features = bow()
 
     t_size = [50,100,150,200,250,300,350]
+    #t_size = [330]
+
+    names = ['Logistic Regression', 'SVM', 'Linear SVM', 'Decision Tree', 'Random Forest']
+    classifiers = [LogisticRegression(), 
+                    svm.SVC(),
+                    svm.LinearSVC(), 
+                    DecisionTreeClassifier(max_depth=5),
+                    RandomForestClassifier(n_estimators = 100)]
 
     for i in t_size:
         train_data_features = data_features[:i, :]
         test_data_features = data_features[i:546, :]
-        #forest = RandomForestClassifier(n_estimators = 100)
-        logistic = LogisticRegression()
-        logistic = logistic.fit(train_data_features, train['y'][:i])
-        y_pred = logistic.predict(test_data_features)
 
-        f1_score = metrics.f1_score(train['y'][i:546], y_pred)
-        print 'Logistic Regression - train_size: %i f1_score: %f' % (i, f1_score)
+        y_train = train['y'][:i]
+        y_test = train['y'][i:546]
+
+        for name, clf in zip(names, classifiers):
+
+            #forest = RandomForestClassifier(n_estimators = 100)
+            clf = clf.fit(train_data_features, y_train)
+            y_pred = clf.predict(test_data_features)
+            #prob = clf.predict_proba(test_data_features)
+
+            f1_score = metrics.f1_score(y_test, y_pred)
+            
+            output = {}
+            output['name'] = name
+            output['train_size'] = i
+            output['f1_score'] = f1_score
+            
+            print output
 
 if __name__ == '__main__':
     main()
