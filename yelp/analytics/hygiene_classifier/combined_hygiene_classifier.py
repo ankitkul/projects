@@ -9,7 +9,9 @@ from sklearn import svm
 import numpy as np
 import pandas as pd
 import csv
+import ast
 from sklearn.cross_validation import train_test_split
+from sklearn.decomposition import TruncatedSVD
 
 unigram_review = 'corpus/unigram_reviews.txt'
 mixed_corpus = 'corpus/mixed_corpus.txt'
@@ -44,51 +46,69 @@ def custom_tokens(text):
     tokens = []
     for item in text.split(','):
         tokens.append(item.replace(' ', '_'))    
-    return tokens                
+    return tokens
 
-def bow(tfidf, file):
+def corpus_additional_features():
+    corpus_categories = []
+    other_features = []
+    with open(additional, 'rb') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        for row in reader:
+            tags = []
+            for item in ast.literal_eval(row[0]):
+                item = item.replace(' ', '_')
+                tags.append(item)  
+            tags.append(row[1][2:])  
+            corpus_categories.append(','.join(tags))
+            other_features.append( [int(row[2])*1.0/139, float(row[3])/5] )
+
+    other_features = np.array(other_features[:546])
+
+    vectorizer = TfidfVectorizer(max_df=0.5, max_features=5000,
+                             min_df=2, stop_words = None,
+                             use_idf=True, tokenizer = custom_tokens)
+    
+    train_adata_features = vectorizer.fit_transform(corpus_categories[:546])
+    train_adata_features = train_adata_features.toarray()
+
+    combined_features = np.hstack((train_adata_features, other_features))
+
+    return combined_features                 
+
+def bow(file):
     corpus = read_data(file)
 
     tokenizer_func = None
     if file == mixed_corpus:
         tokenizer_func = custom_tokens
 
-    if tfidf:
-        vectorizer = TfidfVectorizer(max_df=0.5, max_features=5000,
+    vectorizer = TfidfVectorizer(max_df=0.5, max_features=5000,
                              min_df=2, stop_words = None,
                              use_idf=True,
                              tokenizer = tokenizer_func)
-    else:
-        vectorizer = CountVectorizer(analyzer = "word", tokenizer = tokenizer_func,
-                             preprocessor = None, \
-                             stop_words = None,   \
-                             max_features = 5000, 
-                             min_df = 2,
-                             max_df = 0.5)
     
     train_data_features = vectorizer.fit_transform(corpus[:546])
     train_data_features = train_data_features.toarray()
 
-    #trained_feature_analysis(vectorizer, train_data_features)
+    svd = TruncatedSVD(n_components=100, n_iter=7, random_state=42)
+    dense_review_features = svd.fit_transform(train_data_features)
 
-    return train_data_features
+    #trained_feature_analysis(vectorizer, train_data_features)
+    combined_features = corpus_additional_features()
+    final_features = np.hstack((dense_review_features, combined_features))
+
+    return final_features
 
 def main():
     train = pd.read_csv(training_label, header=0)
 
-    tfidf = False
-    data_features = bow(tfidf, mixed_corpus)
+    data_features = bow(mixed_corpus)
 
-    t_size = [0.4,0.5,0.6,0.7,0.8]
+    t_size = [0.6,0.7,0.8]
 
-    names = ['Logistic Regression', 'SVM', 'Linear SVM', 
-                'Decision Tree', 'Random Forest', 'Naive Bayes']
-    classifiers = [LogisticRegression(), 
-                    svm.SVC(),
-                    svm.LinearSVC(), 
-                    DecisionTreeClassifier(max_depth=5),
-                    RandomForestClassifier(n_estimators = 100),
-                    GaussianNB()]
+    names = ['Logistic Regression', 'Linear SVM']
+    classifiers = [LogisticRegression(),
+                    svm.LinearSVC()]
 
     f1_score_train_size = []                
     for i in t_size:
@@ -109,14 +129,10 @@ def main():
             f1_score_train_size.append([name, str(i * 100), str(f1_score)])
 
             print ','.join([name, str(i * 100), str(f1_score)])
-
-    if tfidf:
-        tf_text = 'tfidf'
-    else:
-        tf_text = 'tf'    
+ 
     
     csv_header = ['model_name','train_labe_sample','f1_score']
-    save_csv('output/f1_score_train_size_%s.txt' % tf_text, 
+    save_csv('output/combined_f1_score.txt', 
                 f1_score_train_size,
                 csv_header)        
 

@@ -9,10 +9,9 @@ from sklearn import svm
 import numpy as np
 import pandas as pd
 import csv
+import ast
 from sklearn.cross_validation import train_test_split
 
-unigram_review = 'corpus/unigram_reviews.txt'
-mixed_corpus = 'corpus/mixed_corpus.txt'
 training_label = 'Hygiene/training_hygiene.dat.labels'
 additional = 'Hygiene/hygiene.dat.additional'
 
@@ -38,57 +37,50 @@ def trained_feature_analysis(vectorizer, train_data_features):
     # For each, print the vocabulary word and the number of times it 
     # appears in the training set
     for tag, count in zip(vocab, dist):
-        print count, tag    
+        print count, tag  
 
 def custom_tokens(text):
-    tokens = []
-    for item in text.split(','):
-        tokens.append(item.replace(' ', '_'))    
-    return tokens                
+    return text.split(',')
 
-def bow(tfidf, file):
-    corpus = read_data(file)
+def bow():
+    corpus = []
+    other_features = []
+    with open(additional, 'rb') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        for row in reader:
+            tags = []
+            for item in ast.literal_eval(row[0]):
+                item = item.replace(' ', '_')
+                tags.append(item)  
+            tags.append(row[1][2:])  
+            corpus.append(','.join(tags))
+            other_features.append( [int(row[2])*1.0/139, float(row[3])/5] )
 
-    tokenizer_func = None
-    if file == mixed_corpus:
-        tokenizer_func = custom_tokens
+    other_features = np.array(other_features[:546])        
 
-    if tfidf:
-        vectorizer = TfidfVectorizer(max_df=0.5, max_features=5000,
+    vectorizer = TfidfVectorizer(max_df=0.5, max_features=5000,
                              min_df=2, stop_words = None,
-                             use_idf=True,
-                             tokenizer = tokenizer_func)
-    else:
-        vectorizer = CountVectorizer(analyzer = "word", tokenizer = tokenizer_func,
-                             preprocessor = None, \
-                             stop_words = None,   \
-                             max_features = 5000, 
-                             min_df = 2,
-                             max_df = 0.5)
+                             use_idf=True, tokenizer = custom_tokens)
     
     train_data_features = vectorizer.fit_transform(corpus[:546])
     train_data_features = train_data_features.toarray()
 
-    #trained_feature_analysis(vectorizer, train_data_features)
+    trained_feature_analysis(vectorizer, train_data_features)
 
-    return train_data_features
+    combined_features = np.hstack((train_data_features, other_features))
+
+    return combined_features
 
 def main():
     train = pd.read_csv(training_label, header=0)
 
-    tfidf = False
-    data_features = bow(tfidf, mixed_corpus)
+    data_features = bow()
 
-    t_size = [0.4,0.5,0.6,0.7,0.8]
+    t_size = [0.6,0.7,0.8]
 
-    names = ['Logistic Regression', 'SVM', 'Linear SVM', 
-                'Decision Tree', 'Random Forest', 'Naive Bayes']
+    names = ['Logistic Regression', 'Linear SVM']
     classifiers = [LogisticRegression(), 
-                    svm.SVC(),
-                    svm.LinearSVC(), 
-                    DecisionTreeClassifier(max_depth=5),
-                    RandomForestClassifier(n_estimators = 100),
-                    GaussianNB()]
+                    svm.LinearSVC()]
 
     f1_score_train_size = []                
     for i in t_size:
@@ -109,14 +101,10 @@ def main():
             f1_score_train_size.append([name, str(i * 100), str(f1_score)])
 
             print ','.join([name, str(i * 100), str(f1_score)])
-
-    if tfidf:
-        tf_text = 'tfidf'
-    else:
-        tf_text = 'tf'    
+  
     
     csv_header = ['model_name','train_labe_sample','f1_score']
-    save_csv('output/f1_score_train_size_%s.txt' % tf_text, 
+    save_csv('output/f1_score_additional_factors.txt', 
                 f1_score_train_size,
                 csv_header)        
 
