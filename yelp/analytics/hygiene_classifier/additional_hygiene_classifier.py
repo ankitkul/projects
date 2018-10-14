@@ -1,9 +1,5 @@
-import os
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import GaussianNB
 import sklearn.metrics as metrics
 from sklearn import svm
 import numpy as np

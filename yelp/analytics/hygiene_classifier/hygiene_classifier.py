@@ -1,4 +1,3 @@
-import os
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -111,7 +110,7 @@ def main():
             print ','.join([name, str(i * 100), str(f1_score)])
 
     if tfidf:
-        tf_text = 'tfidf'
+        tf_text = 'tfidf' #lgtm [py/unreachable-statement]
     else:
         tf_text = 'tf'    
     

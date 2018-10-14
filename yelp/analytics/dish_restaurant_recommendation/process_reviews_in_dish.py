@@ -47,7 +47,7 @@ def top_restaurants_for_dish():
 			if freq > 5:
 				sudo_rating = avg_rating**2
 			else:
-				sudo_rating = avg_rating**(1/2)
+				sudo_rating = avg_rating**(0.5)
 			score = freq * sudo_rating
 
 			popular_restaurant.append((r_name, score, avg_rating, freq, city, state, stars))

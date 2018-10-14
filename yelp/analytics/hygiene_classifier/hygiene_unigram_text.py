@@ -1,7 +1,5 @@
-import os
 import re
 from nltk.corpus import stopwords
-import numpy as np
 
 review_file = 'Hygiene/hygiene.dat'
 
