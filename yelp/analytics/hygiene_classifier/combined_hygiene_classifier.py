@@ -125,7 +125,7 @@ def main():
             f1_score_train_size.append([name, str(i * 100), str(f1_score)])
 
             print ','.join([name, str(i * 100), str(f1_score)])
-    
+
     csv_header = ['model_name','train_labe_sample','f1_score']
     save_csv('output/combined_f1_score.txt',
                 f1_score_train_size,
