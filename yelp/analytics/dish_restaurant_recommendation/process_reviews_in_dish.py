@@ -79,7 +79,7 @@ def top_dishes():
 				if d_id in dish_ratings:
 					dish_ratings[d_id].append(int(review_rating[key]))
 				else:
-					dish_ratings[d_id] = [int(review_rating[key])]			 
+					dish_ratings[d_id] = [int(review_rating[key])]
 
 	popular_dish =[]				
 	for k, v in dish_ratings.iteritems():

@@ -45,11 +45,11 @@ def custom_tokens(text):
         tokens.append(item.replace(' ', '_'))
     return tokens
 
-def bag_of_words(tfidf, file):
-    corpus = read_data(file)
+def bag_of_words(tfidf, file_mixed):
+    corpus = read_data(file_mixed)
 
     tokenizer_func = None
-    if file == mixed_corpus:
+    if file_mixed == mixed_corpus:
         tokenizer_func = custom_tokens
 
     if tfidf:
@@ -113,7 +113,7 @@ def main():
         tf_text = 'tfidf' #lgtm [py/unreachable-statement]
     else:
         tf_text = 'tf'
-    
+
     csv_header = ['model_name','train_labe_sample','f1_score']
     save_csv('output/f1_score_train_size_%s.txt' % tf_text,
                 f1_score_train_size,

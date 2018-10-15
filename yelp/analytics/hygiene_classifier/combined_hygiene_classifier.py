@@ -71,18 +71,18 @@ def corpus_additional_features():
 
     return combined_features
 
-def bag_of_words(file):
-    corpus = read_data(file)
+def bag_of_words(file_mixed):
+    corpus = read_data(file_mixed)
 
     tokenizer_func = None
-    if file == mixed_corpus:
+    if file_mixed == mixed_corpus:
         tokenizer_func = custom_tokens
 
     vectorizer = TfidfVectorizer(max_df=0.5, max_features=5000,
                              min_df=2, stop_words = None,
                              use_idf=True,
                              tokenizer = tokenizer_func)
-    
+
     train_data_features = vectorizer.fit_transform(corpus[:546])
     train_data_features = train_data_features.toarray()
 
