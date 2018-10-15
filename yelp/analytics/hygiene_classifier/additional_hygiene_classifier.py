@@ -21,7 +21,7 @@ def save_csv(output_file, data, header_list):
         csv_out=csv.writer(out)
         csv_out.writerow(header_list)
         for row in data:
-            csv_out.writerow(row)    
+            csv_out.writerow(row)
 
 def trained_feature_analysis(vectorizer, train_data_features):
     vocab = vectorizer.get_feature_names()
@@ -30,10 +30,10 @@ def trained_feature_analysis(vectorizer, train_data_features):
     # Sum up the counts of each vocabulary word
     dist = np.sum(train_data_features, axis=0)
 
-    # For each, print the vocabulary word and the number of times it 
+    # For each, print the vocabulary word and the number of times it
     # appears in the training set
     for tag, count in zip(vocab, dist):
-        print count, tag  
+        print count, tag
 
 def custom_tokens(text):
     return text.split(',')
@@ -47,17 +47,17 @@ def bow():
             tags = []
             for item in ast.literal_eval(row[0]):
                 item = item.replace(' ', '_')
-                tags.append(item)  
-            tags.append(row[1][2:])  
+                tags.append(item)
+            tags.append(row[1][2:])
             corpus.append(','.join(tags))
             other_features.append( [int(row[2])*1.0/139, float(row[3])/5] )
 
-    other_features = np.array(other_features[:546])        
+    other_features = np.array(other_features[:546])
 
     vectorizer = TfidfVectorizer(max_df=0.5, max_features=5000,
                              min_df=2, stop_words = None,
                              use_idf=True, tokenizer = custom_tokens)
-    
+
     train_data_features = vectorizer.fit_transform(corpus[:546])
     train_data_features = train_data_features.toarray()
 
@@ -75,10 +75,10 @@ def main():
     t_size = [0.6,0.7,0.8]
 
     names = ['Logistic Regression', 'Linear SVM']
-    classifiers = [LogisticRegression(), 
+    classifiers = [LogisticRegression(),
                     svm.LinearSVC()]
 
-    f1_score_train_size = []                
+    f1_score_train_size = []    
     for i in t_size:
 
         X_train, X_test, y_train, y_test = train_test_split(data_features[:546],
@@ -100,9 +100,9 @@ def main():
   
     
     csv_header = ['model_name','train_labe_sample','f1_score']
-    save_csv('output/f1_score_additional_factors.txt', 
+    save_csv('output/f1_score_additional_factors.txt',
                 f1_score_train_size,
-                csv_header)        
+                csv_header)
 
 if __name__ == '__main__':
     main()

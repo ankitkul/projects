@@ -25,13 +25,13 @@ def top_restaurants_for_dish():
 	for item in dish_name:
 		for key, value in reviews.iteritems():
 			if item in value:
-				id = review2rid[key]
-				if id in restaurant_review_rating:
-					restaurant_review_rating[id].append(int(review_rating[key]))
+				review_id = review2rid[key]
+				if review_id in restaurant_review_rating:
+					restaurant_review_rating[review_id].append(int(review_rating[key]))
 				else:
-					restaurant_review_rating[id] = [int(review_rating[key])]
+					restaurant_review_rating[review_id] = [int(review_rating[key])]
 		
-		popular_restaurant =[]				
+		popular_restaurant =[]
 		for k, v in restaurant_review_rating.iteritems():
 			total_rating = 0
 			for rating in v:
@@ -75,11 +75,11 @@ def top_dishes():
 	for key, value in reviews.iteritems():
 		for item in top_dishes:
 			if item[0] in value:
-				id = item[0]+'-'+item[1]
-				if id in dish_ratings:
-					dish_ratings[id].append(int(review_rating[key]))
+				d_id = item[0]+'-'+item[1]
+				if d_id in dish_ratings:
+					dish_ratings[d_id].append(int(review_rating[key]))
 				else:
-					dish_ratings[id] = [int(review_rating[key])]			 
+					dish_ratings[d_id] = [int(review_rating[key])]			 
 
 	popular_dish =[]				
 	for k, v in dish_ratings.iteritems():
